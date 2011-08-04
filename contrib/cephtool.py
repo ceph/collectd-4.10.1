@@ -30,24 +30,30 @@ def cephtool_subprocess(more_args):
     if (g_ceph_config != ""):
         args.extend(["-c", g_ceph_config])
     args.extend(more_args)
-    args.extend(["--format=json", "-o", "-"])
+    args.extend(["-o", "-"])
     pstdout, pstdin = popen2.popen2(args)
     return pstdout.read()
 
-def cephtool_get_json(more_args):
-    info = cephtool_subprocess(more_args)
-    lines = info.splitlines()
-    first_json_line = -1
+def find_first_json_line(lines):
     line_idx = 0
     for line in lines:
         if ((len(line) > 0) and ((line[0] == '{') or (line[0] == '['))):
-            first_json_line = line_idx
-            break
+            return line_idx
         line_idx = line_idx + 1
-    if (first_json_line == -1):
-        raise Exception("failed to find the first JSON line in the output!")
-    jsonstr = "".join(lines[first_json_line:])
-    return json.loads(jsonstr)
+    raise Exception("failed to find the first JSON line in the output!")
+
+def cephtool_get_json_sections(num_sections, more_args):
+    info = cephtool_subprocess(more_args)
+    lines = info.splitlines()
+    jsonobjs = []
+    for i in range(0, num_sections):
+        first_json_line = find_first_json_line(lines)
+        jsonstr = "\n".join(lines[first_json_line:])
+        json_decoder = json.JSONDecoder()
+        jsonobj, end_idx = json_decoder.raw_decode(jsonstr)
+        jsonobjs.append(jsonobj)
+        lines = jsonstr[end_idx:].splitlines()
+    return jsonobjs
 
 def cephtool_read_pg_states(pg_json):
     stateinfo = {
@@ -110,9 +116,10 @@ def cephtool_read_osd(osd_json):
     ).dispatch()
 
 def cephtool_read(data=None):
-    osd_json = cephtool_get_json(["osd", "dump"])
-    pg_json = cephtool_get_json(["pg", "dump"])
-    mon_json = cephtool_get_json(["mon", "dump"])
+    osd_json, pg_json, mon_json = cephtool_get_json_sections(3,
+                                        ["osd", "dump", "--format=json", ";",
+                                        "pg", "dump", "--format=json", ";",
+                                        "mon", "dump", "--format=json"])
 
     collectd.Values(plugin="cephtool",\
         type='num_osds',\
