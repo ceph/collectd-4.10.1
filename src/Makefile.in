@@ -518,6 +518,12 @@ bind_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(bind_la_CFLAGS) $(CFLAGS) \
 	$(bind_la_LDFLAGS) $(LDFLAGS) -o $@
 @BUILD_PLUGIN_BIND_TRUE@am_bind_la_rpath = -rpath $(pkglibdir)
+ceph_la_DEPENDENCIES =
+am_ceph_la_OBJECTS = ceph_la-ceph.lo
+ceph_la_OBJECTS = $(am_ceph_la_OBJECTS)
+ceph_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CCLD) $(ceph_la_CFLAGS) $(CFLAGS) \
+	$(ceph_la_LDFLAGS) $(LDFLAGS) -o $@
 conntrack_la_LIBADD =
 am__conntrack_la_SOURCES_DIST = conntrack.c
 @BUILD_PLUGIN_CONNTRACK_TRUE@am_conntrack_la_OBJECTS = conntrack.lo
@@ -1451,7 +1457,7 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(apache_la_SOURCES) $(apcups_la_SOURCES) \
 	$(apple_sensors_la_SOURCES) $(ascent_la_SOURCES) \
-	$(battery_la_SOURCES) $(bind_la_SOURCES) \
+	$(battery_la_SOURCES) $(bind_la_SOURCES) $(ceph_la_SOURCES) \
 	$(conntrack_la_SOURCES) $(contextswitch_la_SOURCES) \
 	$(cpu_la_SOURCES) $(cpufreq_la_SOURCES) $(csv_la_SOURCES) \
 	$(curl_la_SOURCES) $(curl_json_la_SOURCES) \
@@ -1498,7 +1504,8 @@ DIST_SOURCES = $(am__apache_la_SOURCES_DIST) \
 	$(am__apcups_la_SOURCES_DIST) \
 	$(am__apple_sensors_la_SOURCES_DIST) \
 	$(am__ascent_la_SOURCES_DIST) $(am__battery_la_SOURCES_DIST) \
-	$(am__bind_la_SOURCES_DIST) $(am__conntrack_la_SOURCES_DIST) \
+	$(am__bind_la_SOURCES_DIST) $(ceph_la_SOURCES) \
+	$(am__conntrack_la_SOURCES_DIST) \
 	$(am__contextswitch_la_SOURCES_DIST) \
 	$(am__cpu_la_SOURCES_DIST) $(am__cpufreq_la_SOURCES_DIST) \
 	$(am__csv_la_SOURCES_DIST) $(am__curl_la_SOURCES_DIST) \
@@ -1769,6 +1776,11 @@ PERL_LDFLAGS = @PERL_LDFLAGS@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
+PYTHON = @PYTHON@
+PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
+PYTHON_PLATFORM = @PYTHON_PLATFORM@
+PYTHON_PREFIX = @PYTHON_PREFIX@
+PYTHON_VERSION = @PYTHON_VERSION@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
@@ -1822,9 +1834,13 @@ mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
 pdfdir = @pdfdir@
 pkgconfigdir = @pkgconfigdir@
+pkgpyexecdir = @pkgpyexecdir@
+pkgpythondir = @pkgpythondir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
+pyexecdir = @pyexecdir@
+pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -1894,15 +1910,15 @@ collectd_LDADD = $(am__append_4) $(am__append_5) $(am__append_6) \
 	$(am__append_261) $(am__append_265) $(am__append_268) \
 	$(am__append_272) $(am__append_275) $(am__append_278) \
 	$(am__append_281) $(am__append_284) $(am__append_287) \
-	$(am__append_293) $(am__append_296) $(am__append_305) \
-	$(am__append_308) $(am__append_311) $(am__append_314) \
-	$(am__append_317) $(am__append_320) $(am__append_323) \
-	$(am__append_326) $(am__append_329) $(am__append_333) \
-	$(am__append_336) $(am__append_339) $(am__append_343) \
-	$(am__append_346) $(am__append_350) $(am__append_355) \
-	$(am__append_358) $(am__append_361) $(am__append_364) \
-	$(am__append_367) $(am__append_370) $(am__append_375) \
-	$(am__append_378)
+	$(am__append_293) "-dlopen" ceph.la $(am__append_296) \
+	$(am__append_305) $(am__append_308) $(am__append_311) \
+	$(am__append_314) $(am__append_317) $(am__append_320) \
+	$(am__append_323) $(am__append_326) $(am__append_329) \
+	$(am__append_333) $(am__append_336) $(am__append_339) \
+	$(am__append_343) $(am__append_346) $(am__append_350) \
+	$(am__append_355) $(am__append_358) $(am__append_361) \
+	$(am__append_364) $(am__append_367) $(am__append_370) \
+	$(am__append_375) $(am__append_378)
 collectd_DEPENDENCIES = $(am__append_16) $(am__append_24) \
 	$(am__append_28) $(am__append_31) $(am__append_34) \
 	$(am__append_38) $(am__append_41) $(am__append_44) \
@@ -1928,7 +1944,7 @@ collectd_DEPENDENCIES = $(am__append_16) $(am__append_24) \
 	$(am__append_262) $(am__append_266) $(am__append_269) \
 	$(am__append_273) $(am__append_276) $(am__append_279) \
 	$(am__append_282) $(am__append_285) $(am__append_288) \
-	$(am__append_294) $(am__append_297) $(am__append_306) \
+	$(am__append_294) ceph.la $(am__append_297) $(am__append_306) \
 	$(am__append_309) $(am__append_312) $(am__append_315) \
 	$(am__append_318) $(am__append_321) $(am__append_324) \
 	$(am__append_327) $(am__append_330) $(am__append_334) \
@@ -1967,7 +1983,7 @@ pkglib_LTLIBRARIES = $(am__append_20) $(am__append_25) \
 	$(am__append_254) $(am__append_257) $(am__append_260) \
 	$(am__append_263) $(am__append_267) $(am__append_271) \
 	$(am__append_274) $(am__append_277) $(am__append_280) \
-	$(am__append_283) $(am__append_286) $(am__append_289) \
+	$(am__append_283) $(am__append_286) $(am__append_289) ceph.la \
 	$(am__append_295) $(am__append_304) $(am__append_307) \
 	$(am__append_310) $(am__append_313) $(am__append_316) \
 	$(am__append_319) $(am__append_322) $(am__append_325) \
@@ -2276,6 +2292,10 @@ CLEANFILES = $(am__append_250)
 @BUILD_PLUGIN_SNMP_TRUE@	$(am__append_290)
 @BUILD_PLUGIN_SNMP_TRUE@snmp_la_LIBADD = $(am__append_291) \
 @BUILD_PLUGIN_SNMP_TRUE@	$(am__append_292)
+ceph_la_SOURCES = ceph.c
+ceph_la_LDFLAGS = -module -avoid-version
+ceph_la_CFLAGS = $(AM_CFLAGS)
+ceph_la_LIBADD = -ljson
 @BUILD_PLUGIN_SWAP_TRUE@swap_la_SOURCES = swap.c
 @BUILD_PLUGIN_SWAP_TRUE@swap_la_CFLAGS = $(AM_CFLAGS) \
 @BUILD_PLUGIN_SWAP_TRUE@	$(am__append_301)
@@ -2476,6 +2496,8 @@ battery.la: $(battery_la_OBJECTS) $(battery_la_DEPENDENCIES)
 	$(battery_la_LINK) $(am_battery_la_rpath) $(battery_la_OBJECTS) $(battery_la_LIBADD) $(LIBS)
 bind.la: $(bind_la_OBJECTS) $(bind_la_DEPENDENCIES) 
 	$(bind_la_LINK) $(am_bind_la_rpath) $(bind_la_OBJECTS) $(bind_la_LIBADD) $(LIBS)
+ceph.la: $(ceph_la_OBJECTS) $(ceph_la_DEPENDENCIES) 
+	$(ceph_la_LINK) -rpath $(pkglibdir) $(ceph_la_OBJECTS) $(ceph_la_LIBADD) $(LIBS)
 conntrack.la: $(conntrack_la_OBJECTS) $(conntrack_la_DEPENDENCIES) 
 	$(conntrack_la_LINK) $(am_conntrack_la_rpath) $(conntrack_la_OBJECTS) $(conntrack_la_LIBADD) $(LIBS)
 contextswitch.la: $(contextswitch_la_OBJECTS) $(contextswitch_la_DEPENDENCIES) 
@@ -2768,6 +2790,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ascent_la-ascent.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/battery.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bind_la-bind.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ceph_la-ceph.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/collectd-collectd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/collectd-common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/collectd-configfile.Po@am__quote@
@@ -2940,6 +2963,13 @@ bind_la-bind.lo: bind.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bind.c' object='bind_la-bind.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bind_la_CFLAGS) $(CFLAGS) -c -o bind_la-bind.lo `test -f 'bind.c' || echo '$(srcdir)/'`bind.c
+
+ceph_la-ceph.lo: ceph.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ceph_la_CFLAGS) $(CFLAGS) -MT ceph_la-ceph.lo -MD -MP -MF $(DEPDIR)/ceph_la-ceph.Tpo -c -o ceph_la-ceph.lo `test -f 'ceph.c' || echo '$(srcdir)/'`ceph.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/ceph_la-ceph.Tpo $(DEPDIR)/ceph_la-ceph.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ceph.c' object='ceph_la-ceph.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ceph_la_CFLAGS) $(CFLAGS) -c -o ceph_la-ceph.lo `test -f 'ceph.c' || echo '$(srcdir)/'`ceph.c
 
 cpu_la-cpu.lo: cpu.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(cpu_la_CFLAGS) $(CFLAGS) -MT cpu_la-cpu.lo -MD -MP -MF $(DEPDIR)/cpu_la-cpu.Tpo -c -o cpu_la-cpu.lo `test -f 'cpu.c' || echo '$(srcdir)/'`cpu.c
