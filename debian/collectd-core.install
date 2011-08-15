@@ -2,14 +2,16 @@
 ../../contrib/rrd_filter.px usr/lib/collectd/utils
 ../collection.conf etc/collectd/
 usr/lib/collectd/*.so
+usr/lib/python2.6/dist-packages/cephtool.py
+usr/lib/python2.6/dist-packages/cephtool.pyc
+usr/lib/python2.6/dist-packages/cephtool.pyo
 usr/sbin
 usr/share/collectd
-usr/share/man/man1/collectdmon.1
 usr/share/man/man1/collectd.1
+usr/share/man/man1/collectdmon.1
 usr/share/man/man3/Collectd::Unixsock.3pm
 usr/share/man/man5/collectd-*.5
 usr/share/man/man5/collectd.conf.5
 usr/share/man/man5/types.db.5
 usr/share/perl5
 var
-
