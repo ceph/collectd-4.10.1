@@ -134,7 +134,16 @@ ifneq (,$(filter hppa, $(DEB_BUILD_ARCH)))
 	confflags += --disable-java
 endif
 
-config.status: configure $(DPATCH_STAMPFN)
+run_autotools: run_autotools
+	aclocal
+	libtoolize --force --copy
+	autoconf
+	autoheader
+	automake -a --add-missing -Wall
+	autoreconf -fvi
+	touch run_autotools
+
+config.status: run_autotools configure $(DPATCH_STAMPFN)
 	dh_testdir
 	
 	( cd debian/patches/; for patch in *; do \
@@ -144,7 +153,7 @@ config.status: configure $(DPATCH_STAMPFN)
 		fi; done )
 	
 	# This is a work-around for #474087 (broken openipmi .pc files).
-	mkdir debian/pkgconfig
+	mkdir -p debian/pkgconfig
 	sed -re 's/^(Requires:.*) pthread(.*)$$/\1\2/' \
 		/usr/lib/pkgconfig/OpenIPMIpthread.pc \
 		> debian/pkgconfig/OpenIPMIpthread.pc
