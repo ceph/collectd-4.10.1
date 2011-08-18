@@ -29641,7 +29641,7 @@ LCC_VERSION_STRING="$LCC_VERSION_MAJOR.$LCC_VERSION_MINOR.$LCC_VERSION_PATCH"
 ac_config_files="$ac_config_files src/libcollectdclient/lcc_features.h"
 
 
-ac_config_files="$ac_config_files Makefile contrib/Makefile src/Makefile src/collectd.conf src/owniptc/Makefile src/libcollectdclient/Makefile src/libcollectdclient/libcollectdclient.pc src/liboconfig/Makefile bindings/Makefile bindings/java/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile src/collectd.conf src/owniptc/Makefile src/libcollectdclient/Makefile src/libcollectdclient/libcollectdclient.pc src/liboconfig/Makefile bindings/Makefile bindings/java/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -31217,7 +31217,6 @@ do
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "src/libcollectdclient/lcc_features.h") CONFIG_FILES="$CONFIG_FILES src/libcollectdclient/lcc_features.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-    "contrib/Makefile") CONFIG_FILES="$CONFIG_FILES contrib/Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "src/collectd.conf") CONFIG_FILES="$CONFIG_FILES src/collectd.conf" ;;
     "src/owniptc/Makefile") CONFIG_FILES="$CONFIG_FILES src/owniptc/Makefile" ;;
