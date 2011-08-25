@@ -157,23 +157,23 @@ def cephtool_read(data=None):
     ).dispatch()
     collectd.Values(plugin="cephtool",\
         type='num_objects',\
-        values=[pg_json["pg_stats_sum"]["num_objects"]]\
+        values=[pg_json["pg_stats_sum"]["stat_sum"]["num_objects"]]\
     ).dispatch()
     collectd.Values(plugin="cephtool",\
         type='pg_stats_sum_num_bytes',\
-        values=[pg_json["pg_stats_sum"]["num_bytes"]]\
+        values=[pg_json["pg_stats_sum"]["stat_sum"]["num_bytes"]]\
     ).dispatch()
     collectd.Values(plugin="cephtool",\
         type='num_objects_missing_on_primary',\
-        values=[pg_json["pg_stats_sum"]["num_objects_missing_on_primary"]]\
+        values=[pg_json["pg_stats_sum"]["stat_sum"]["num_objects_missing_on_primary"]]\
     ).dispatch()
     collectd.Values(plugin="cephtool",\
         type='num_objects_degraded',\
-        values=[pg_json["pg_stats_sum"]["num_objects_degraded"]]\
+        values=[pg_json["pg_stats_sum"]["stat_sum"]["num_objects_degraded"]]\
     ).dispatch()
     collectd.Values(plugin="cephtool",\
         type='num_objects_unfound',\
-        values=[pg_json["pg_stats_sum"]["num_objects_unfound"]]\
+        values=[pg_json["pg_stats_sum"]["stat_sum"]["num_objects_unfound"]]\
     ).dispatch()
 
     collectd.Values(plugin="cephtool",\
