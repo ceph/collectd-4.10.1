@@ -10,15 +10,20 @@ import time
 g_cephtool_path = ""
 g_ceph_config = ""
 
+# How long to wait before complaining about PGs lingering in bad states.
+g_linger_timeout = 300
+
 def cephtool_config(config):
-    global g_cephtool_path, g_ceph_config
+    global g_cephtool_path, g_ceph_config, g_linger_timeout
     for child in config.children:
         if child.key == "cephtool":
             g_cephtool_path = child.values[0]
         elif child.key == "config":
             g_ceph_config = child.values[0]
-    collectd.info("cephtool_config: g_cephtool_path='%s', g_ceph_config='%s'" % \
-            (g_cephtool_path, g_ceph_config))
+        elif child.key == "linger_timeout":
+            g_linger_timeout = int(child.values[0])
+    collectd.info("cephtool_config: g_cephtool_path='%s', g_ceph_config='%s',\
+g_linger_timeout=%d" % (g_cephtool_path, g_ceph_config, g_linger_timeout))
     if g_cephtool_path == "":
         raise Exception("You must configure the path to cephtool.")
     if not os.path.exists(g_cephtool_path):
@@ -78,10 +83,8 @@ def register_pg_in_state(curtime, pgid, state):
     if phash[pgid] > curtime:
         phash[pgid] = curtime
 
-# After 5 minutes, complain about old bad pgs
-BAD_STATE_TIMEOUT = (5 * 60)
-
 def count_old_bad_pgs(curtime):
+    global g_linger_timeout
     num_old_bad_pgs = {}
     for bad_state_name in bad_states_to_pgs.keys():
         num_old_bad_pgs[bad_state_name] = 0
@@ -90,7 +93,7 @@ def count_old_bad_pgs(curtime):
             if (etime > curtime):
                 continue
             diff = curtime - etime
-            if (diff > BAD_STATE_TIMEOUT):
+            if (diff > g_linger_timeout):
                 num_old_bad_pgs[bad_state_name] = num_old_bad_pgs[bad_state_name] + 1
     for bad_state_name, num_old_bad_pgs in num_old_bad_pgs.items():
         collectd.Values(plugin="cephtool",\
