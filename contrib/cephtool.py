@@ -55,7 +55,51 @@ def cephtool_get_json_sections(num_sections, more_args):
         lines = jsonstr[end_idx:].splitlines()
     return jsonobjs
 
+# { bad_state_name -> { pgid -> time_pgid_entered_state } }
+bad_states_to_pgs = {
+    "crashed" : {},
+    "creating" : {},
+    "degraded" : {},
+    "down" : {},
+    "inconsistent" : {},
+    "peering" : {},
+    "repair" : {},
+    "replay" : {},
+    "stray" : {},
+}
+
+def register_pg_in_state(curtime, pgid, state):
+    if (not bad_states_to_pgs.has_key(state)):
+        return
+    phash = bad_states_to_pgs[state]
+    if (not phash.has_key(pgid)):
+        phash[pgid] = curtime
+        return
+    if phash[pgid] > curtime:
+        phash[pgid] = curtime
+
+# After 5 minutes, complain about old bad pgs
+BAD_STATE_TIMEOUT = (5 * 60)
+
+def count_old_bad_pgs(curtime):
+    num_old_bad_pgs = {}
+    for bad_state_name in bad_states_to_pgs.keys():
+        num_old_bad_pgs[bad_state_name] = 0
+    for bad_state_name, bad_pgs in bad_states_to_pgs.items():
+        for pgid, etime in bad_pgs.items():
+            if (etime > curtime):
+                continue
+            diff = curtime - etime
+            if (diff > BAD_STATE_TIMEOUT):
+                num_old_bad_pgs[bad_state_name] = num_old_bad_pgs[bad_state_name] + 1
+    for bad_state_name, num_old_bad_pgs in num_old_bad_pgs.items():
+        collectd.Values(plugin="cephtool",\
+            type=('num_lingering_' + bad_state_name + "_pgs"),\
+            values=[num_old_bad_pgs]\
+        ).dispatch()
+
 def cephtool_read_pg_states(pg_json):
+    curtime = time.time()
     stateinfo = {
         "active" : 0,
         "clean" : 0,
@@ -79,14 +123,16 @@ def cephtool_read_pg_states(pg_json):
         for s in slist:
             if not s in stateinfo:
                 collectd.error("PG %s has unknown state %s" % \
-                    (pg_json["pgid"], s))
+                    (pg["pgid"], s))
             else:
                 stateinfo[s] = stateinfo[s] + 1
+            register_pg_in_state(curtime, pg["pgid"], s)
     for k,v in stateinfo.items():
         collectd.Values(plugin="cephtool",\
             type=('num_pgs_' + k),\
             values=[v]\
         ).dispatch()
+    count_old_bad_pgs(curtime)
 
 def cephtool_read_osd(osd_json):
     num_in = 0
