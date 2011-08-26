@@ -61,7 +61,7 @@ def cephtool_get_json_sections(num_sections, more_args):
     return jsonobjs
 
 # { bad_state_name -> { pgid -> time_pgid_entered_state } }
-bad_states_to_pgs = {
+g_bad_states_to_pgs = {
     "crashed" : {},
     "creating" : {},
     "degraded" : {},
@@ -74,31 +74,69 @@ bad_states_to_pgs = {
 }
 
 def register_pg_in_state(curtime, pgid, state):
-    if (not bad_states_to_pgs.has_key(state)):
+    global g_bad_states_to_pgs
+    if (not g_bad_states_to_pgs.has_key(state)):
         return
-    phash = bad_states_to_pgs[state]
+    phash = g_bad_states_to_pgs[state]
     if (not phash.has_key(pgid)):
         phash[pgid] = curtime
         return
     if phash[pgid] > curtime:
         phash[pgid] = curtime
 
-def count_old_bad_pgs(curtime):
+def count_lingering_bad_pgs(curtime):
+    global g_bad_states_to_pgs
     global g_linger_timeout
-    num_old_bad_pgs = {}
-    for bad_state_name in bad_states_to_pgs.keys():
-        num_old_bad_pgs[bad_state_name] = 0
-    for bad_state_name, bad_pgs in bad_states_to_pgs.items():
+    num_lingering_bad_pgs = {}
+    for bad_state_name in g_bad_states_to_pgs.keys():
+        num_lingering_bad_pgs[bad_state_name] = 0
+    for bad_state_name, bad_pgs in g_bad_states_to_pgs.items():
         for pgid, etime in bad_pgs.items():
             if (etime > curtime):
                 continue
             diff = curtime - etime
             if (diff > g_linger_timeout):
-                num_old_bad_pgs[bad_state_name] = num_old_bad_pgs[bad_state_name] + 1
-    for bad_state_name, num_old_bad_pgs in num_old_bad_pgs.items():
+                num_lingering_bad_pgs[bad_state_name] = num_lingering_bad_pgs[bad_state_name] + 1
+    for bad_state_name, num_lingering_bad_pgs in num_lingering_bad_pgs.items():
         collectd.Values(plugin="cephtool",\
             type=('num_lingering_' + bad_state_name + "_pgs"),\
-            values=[num_old_bad_pgs]\
+            values=[num_lingering_bad_pgs]\
+        ).dispatch()
+
+def count_old_bad_pgs(curtime):
+    global g_bad_states_to_pgs
+    global g_linger_timeout
+    pg_to_bad_time = { }
+    for bad_state_name, bad_pgs in g_bad_states_to_pgs.items():
+        for pgid, etime in bad_pgs.items():
+            if (etime > curtime):
+                continue
+            diff = curtime - etime
+            if (diff > g_linger_timeout):
+                if (pg_to_bad_time.has_key(pgid)):
+                    if (pg_to_bad_time.has_key[pgid] >= etime):
+                        pg_to_bad_time[pgid] = etime
+                else:
+                    pg_to_bad_time[pgid] = etime
+    num_old_bad_pgs = {
+        "old" : 0,
+        "older" : 0,
+        "oldest" : 0,
+    }
+    for pgid, etime in pg_to_bad_time.items():
+        if (etime > curtime):
+            continue
+        diff = curtime - etime
+        if (diff > 3 * g_linger_timeout):
+            num_old_bad_pgs["oldest"] = num_old_bad_pgs["oldest"] + 1
+        elif (diff > 2 * g_linger_timeout):
+            num_old_bad_pgs["older"] = num_old_bad_pgs["older"] + 1
+        elif (diff > g_linger_timeout):
+            num_old_bad_pgs["old"] = num_old_bad_pgs["old"] + 1
+    for desc, num in num_old_bad_pgs.items():
+        collectd.Values(plugin="cephtool",\
+            type=('num_' + desc + "_bad_pgs"),\
+            values=[num]\
         ).dispatch()
 
 def cephtool_read_pg_states(pg_json):
@@ -135,6 +173,7 @@ def cephtool_read_pg_states(pg_json):
             type=('num_pgs_' + k),\
             values=[v]\
         ).dispatch()
+    count_lingering_bad_pgs(curtime)
     count_old_bad_pgs(curtime)
 
 def cephtool_read_osd(osd_json):
